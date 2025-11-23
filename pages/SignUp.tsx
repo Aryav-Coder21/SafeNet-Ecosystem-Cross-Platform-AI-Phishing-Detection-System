@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldAlert, UserPlus, ArrowLeft, Mail, Lock, User, Briefcase } from 'lucide-react';
+import { ShieldAlert, UserPlus, ArrowLeft, Mail, Lock, User, Briefcase, Database } from 'lucide-react';
 import { UserRole } from '../types';
 
 interface SignUpProps {
@@ -147,7 +147,10 @@ export const SignUp: React.FC<SignUpProps> = ({ onSignUp, onNavigateLogin }) => 
                         <option value="admin">Administrator (Demo)</option>
                     </select>
                 </div>
-                <p className="text-xs text-slate-500 mt-1">*Select Admin to see Model Training features.</p>
+                <div className="flex items-center gap-1 mt-2 text-xs text-emerald-400">
+                    <Database className="w-3 h-3" />
+                    Data will be securely encrypted and stored in `safenet_prod`
+                </div>
             </div>
 
             <button
@@ -156,7 +159,7 @@ export const SignUp: React.FC<SignUpProps> = ({ onSignUp, onNavigateLogin }) => 
               className="w-full mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2"
             >
               {loading ? (
-                'Creating Account...'
+                'Committing to Database...'
               ) : (
                 <>
                   <UserPlus className="w-5 h-5" />

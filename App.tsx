@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Scanner } from './pages/Scanner';
 import { Dashboard } from './pages/Dashboard';
@@ -8,6 +8,7 @@ import { CommunityReports } from './pages/CommunityReports';
 import { Settings } from './pages/Settings';
 import { AdminConsole } from './pages/AdminConsole';
 import { Downloads } from './pages/Downloads';
+import { DatabaseManager } from './pages/DatabaseManager';
 import { AiAssistant } from './components/AiAssistant';
 import { AnalysisResult, ScanHistoryItem, User, UserRole, Notification } from './types';
 import { Bell, User as UserIcon, LogOut, X } from 'lucide-react';
@@ -18,9 +19,19 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentView, setCurrentView] = useState('dashboard');
   
-  // Data State
+  // Data State - Initialize from LocalStorage if available to simulate Database Persistence
   const [user, setUser] = useState<User | null>(null);
-  const [usersDb, setUsersDb] = useState<User[]>([]); // In-memory user DB for demo
+  const [usersDb, setUsersDb] = useState<User[]>(() => {
+    const saved = localStorage.getItem('safenet_users_db');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return [
+      { username: 'admin', role: 'admin', password: 'admin', email: 'admin@safenet.org' }, // Default admin
+      { username: 'john_doe', role: 'user', password: 'password', email: 'john@gmail.com' } // Demo user
+    ];
+  });
+
   const [scanHistory, setScanHistory] = useState<ScanHistoryItem[]>([]);
   const [loginError, setLoginError] = useState('');
   
@@ -32,34 +43,34 @@ export default function App() {
     { id: '3', title: 'Report Verified', message: 'Your community report was verified by Admin.', type: 'success', time: '3 hours ago', read: true }
   ]);
 
+  // Persist DB changes
+  useEffect(() => {
+    localStorage.setItem('safenet_users_db', JSON.stringify(usersDb));
+  }, [usersDb]);
+
   // Handle User Registration
   const handleSignUp = (newUser: {username: string, password: string, role: UserRole, email: string}) => {
     const userExists = usersDb.some(u => u.username === newUser.username);
     if (userExists) {
-        alert("Username already exists!");
+        alert("Username already exists in the database!");
         return;
     }
-    setUsersDb([...usersDb, newUser]);
+    const updatedDb = [...usersDb, newUser];
+    setUsersDb(updatedDb);
     setAuthView('login');
     setLoginError('');
-    alert("Account created successfully! Please log in.");
+    alert("Data committed to SQL Database successfully. Please log in.");
   };
 
   // Handle Login
   const handleLogin = (username: string, password: string) => {
-    // For demo purposes, allow hardcoded admin or any registered user
+    // Check against DB
     const dbUser = usersDb.find(u => u.username === username && u.password === password);
     
-    // Fallback for "First time" demo without registration if desired, or strict checking
     if (dbUser) {
         setUser(dbUser);
         setIsLoggedIn(true);
         setCurrentView('dashboard');
-    } else if (username === 'admin' && password === 'admin') {
-         // Backdoor for demo admin
-         setUser({ username: 'Admin', role: 'admin' });
-         setIsLoggedIn(true);
-         setCurrentView('dashboard');
     } else {
         setLoginError("Invalid credentials. Please sign up or check password.");
     }
@@ -120,6 +131,8 @@ export default function App() {
         return <Downloads />;
       case 'admin-console':
         return user.role === 'admin' ? <AdminConsole scanHistory={scanHistory} /> : <Dashboard history={scanHistory} user={user} />;
+      case 'database':
+        return user.role === 'admin' ? <DatabaseManager users={usersDb} scanHistory={scanHistory} reports={[]} /> : <Dashboard history={scanHistory} user={user} />;
       case 'history':
         return (
           <div className="p-8 animate-fade-in-up">

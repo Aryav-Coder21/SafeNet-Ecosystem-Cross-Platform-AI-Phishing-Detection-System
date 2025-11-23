@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, LayoutDashboard, Globe, History, Settings, FileText, LogOut, TerminalSquare, Download } from 'lucide-react';
+import { ShieldAlert, LayoutDashboard, Globe, History, Settings, FileText, LogOut, TerminalSquare, Download, Database } from 'lucide-react';
 import { UserRole } from '../types';
 
 interface SidebarProps {
@@ -19,8 +19,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, onLogout
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
+  // Insert Admin specific items
   if (userRole === 'admin') {
       menuItems.splice(5, 0, { id: 'admin-console', label: 'Admin Console', icon: TerminalSquare });
+      menuItems.splice(6, 0, { id: 'database', label: 'Database', icon: Database });
   }
 
   return (
@@ -35,7 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, onLogout
         </div>
       </div>
 
-      <nav className="flex-1 px-4 py-4 space-y-2">
+      <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
