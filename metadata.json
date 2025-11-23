@@ -1,0 +1,5 @@
+{
+  "name": "SafeNet Web Portal",
+  "description": "Enterprise-grade AI Phishing Detection Dashboard. The central hub for the SafeNet ecosystem, providing real-time URL analysis and threat monitoring.",
+  "requestFramePermissions": []
+}
